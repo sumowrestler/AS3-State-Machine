@@ -1,24 +1,24 @@
 package stateMachine
 {
-	import flash.events.*;
-	import flash.utils.Dictionary; 
+	import flash.events.EventDispatcher;
+	import flash.utils.Dictionary;
 
 	public class StateMachine extends EventDispatcher
 	{
-		public var id:String
+		public var id : String
 		/* @private */
-		public var _state:String;
+		public var _state : String;
 		/* @private */
-		public var _states:Dictionary;
+		public var _states : Dictionary;
 		/* @private */
-		public var _outEvent:StateMachineEvent;
+		public var _outEvent : StateMachineEvent;
 		/* @private */
-		public var parentState:State;
+		public var parentState : IState;
 		/* @private */
-		public var parentStates:Array;
+		public var parentStates : Array;
 		/* @private */
-		public var path:Array;
-		
+		public var path : Array;
+
 		/**
 		 * Creates a generic StateMachine. Available states can be set with addState and initial state can
 		 * be set using initialState setter.
@@ -52,7 +52,7 @@ package stateMachine
 		 *	
 		 *	monsterSM.initialState = "idle"
 		 *	</pre>
-		*/
+		 */
 		public function StateMachine()
 		{
 			_states = new Dictionary();
@@ -63,11 +63,11 @@ package stateMachine
 		 * @param stateName	The name of the new State
 		 * @param stateData	A hash containing state enter and exit callbacks and allowed states to transition from
 		 * The "from" property can be a string or and array with the state names or * to allow any transition
-		**/
-		public function addState(stateName:String, stateData:Object=null):void
+		 **/
+		public function addState(stateName : String, stateData : Object = null) : void
 		{
-			if(stateName in _states) trace("[StateMachine]",id,"Overriding existing state " + stateName);
-			if(stateData == null) stateData = {};
+			if (stateName in _states) trace("[StateMachine]", id, "Overriding existing state " + stateName);
+
 			_states[stateName] = new State(stateName, stateData.from, stateData.enter, stateData.exit, _states[stateData.parent])
 		}
 
@@ -75,28 +75,33 @@ package stateMachine
 		 * Sets the first state, calls enter callback and dispatches TRANSITION_COMPLETE
 		 * These will only occour if no state is defined
 		 * @param stateName	The name of the State
-		**/
-		public function set initialState(stateName:String):void
+		 **/
+		public function set initialState(stateName : String) : void
 		{
-			if (_state == null && stateName in _states){
+			if (_state == null && stateName in _states)
+			{
 				_state = stateName;
-				
-				var _callbackEvent:StateMachineEvent = new StateMachineEvent(StateMachineEvent.ENTER_CALLBACK);
+
+				var _callbackEvent : StateMachineEvent = new StateMachineEvent(StateMachineEvent.ENTER_CALLBACK);
 				_callbackEvent.toState = stateName;
-					
-				if(_states[_state].root){
+
+				if (_states[_state].root)
+				{
 					parentStates = _states[_state].parents
-					for(var j:int = _states[_state].parents.length-1; j>=0; j--){
-						if(parentStates[j].enter){
+					for (var j : int = _states[_state].parents.length - 1; j >= 0; j--)
+					{
+						if (parentStates[j].enter)
+						{
 							_callbackEvent.currentState = parentStates[j].name
-							parentStates[j].enter.call(null,_callbackEvent)
+							parentStates[j].enter.call(null, _callbackEvent)
 						}
 					}
 				}
-			
-				if(_states[_state].enter){
+
+				if (_states[_state].enter)
+				{
 					_callbackEvent.currentState = _state
-					_states[_state].enter.call(null,_callbackEvent)
+					_states[_state].enter.call(null, _callbackEvent)
 				}
 				_outEvent = new StateMachineEvent(StateMachineEvent.TRANSITION_COMPLETE);
 				_outEvent.toState = stateName;
@@ -107,32 +112,34 @@ package stateMachine
 		/**
 		 *	Getters for the current state and for the Dictionary of states
 		 */
-		public function get state():String
+		public function get state() : String
 		{
 			return _states[_state];
 		}
-		
-		public function get states():Dictionary
+
+		public function get states() : Dictionary
 		{
 			return _states;
 		}
-		
-		public function getStateByName( name:String ):State
+
+		public function getStateByName(name : String) : IState
 		{
-			for each( var s:State in _states ){
-				if( s.name == name )
+			for each ( var s:IState in _states )
+			{
+				if ( s.name == name )
 					return s;
 			}
-			
+
 			return null;
 		}
+
 		/**
 		 * Verifies if a transition can be made from the current state to the state passed as param
 		 * @param stateName	The name of the State
-		**/
-		public function canChangeStateTo(stateName:String):Boolean
+		 **/
+		public function canChangeStateTo(stateName : String) : Boolean
 		{
-			return (stateName!=_state && (_states[stateName].from.indexOf(_state)!=-1 || _states[stateName].from == "*"));
+			return (stateName != _state && (_states[stateName].from.indexOf(_state) != -1 || _states[stateName].from == "*"));
 		}
 
 		/**
@@ -140,23 +147,23 @@ package stateMachine
 		 * given states and returns an array with these two integers
 		 * @param stateFrom The state to exit
 		 * @param stateTo The state to enter
-		**/
-		public function findPath(stateFrom:String, stateTo:String):Array
+		 **/
+		public function findPath(stateFrom : String, stateTo : String) : Array
 		{
 			// Verifies if the states are in the same "branch" or have a common parent
-			var fromState:State = _states[stateFrom];
-			var c:int = 0;
-			var d:int = 0;
+			var fromState : IState = _states[stateFrom];
+			var c : int = 0;
+			var d : int = 0;
 			while (fromState)
 			{
-				d=0;
-				var toState:State = _states[stateTo];
+				d = 0;
+				var toState : IState = _states[stateTo];
 				while (toState)
 				{
-					if(fromState == toState)
+					if (fromState == toState)
 					{
 						// They are in the same brach or have a common parent Common parent
-						return [c,d];
+						return [c, d];
 					}
 					d++;
 					toState = toState.parent;
@@ -165,7 +172,7 @@ package stateMachine
 				fromState = fromState.parent;
 			}
 			// No direct path, no commom parent: exit until root then enter until element
-			return [c,d];
+			return [c, d];
 		}
 
 		/**
@@ -173,19 +180,20 @@ package stateMachine
 		 * This will only be done if the intended state allows the transition from the current state
 		 * Changing states will call the exit callback for the exiting state and enter callback for the entering state
 		 * @param stateTo	The name of the state to transition to
-		**/
-		public function changeState(stateTo:String):void
+		 **/
+		public function changeState(stateTo : String) : void
 		{
 			// If there is no state that maches stateTo
-			if (!(stateTo in _states)){
-				trace("[StateMachine]",id,"Cannot make transition: State "+ stateTo +" is not defined");
+			if (!(stateTo in _states))
+			{
+				trace("[StateMachine]", id, "Cannot make transition: State " + stateTo + " is not defined");
 				return;
 			}
-			
+
 			// If current state is not allowed to make this transition
-			if(!canChangeStateTo(stateTo))
+			if (!canChangeStateTo(stateTo))
 			{
-				trace("[StateMachine]",id,"Transition to "+ stateTo +" denied");
+				trace("[StateMachine]", id, "Transition to " + stateTo + " denied");
 				_outEvent = new StateMachineEvent(StateMachineEvent.TRANSITION_DENIED);
 				_outEvent.fromState = _state;
 				_outEvent.toState = stateTo;
@@ -193,55 +201,59 @@ package stateMachine
 				dispatchEvent(_outEvent);
 				return;
 			}
-			
+
 			// call exit and enter callbacks (if they exits)
-			path = findPath(_state,stateTo);
-			if(path[0]>0)
+			path = findPath(_state, stateTo);
+			if (path[0] > 0)
 			{
-				var _exitCallbackEvent:StateMachineEvent = new StateMachineEvent(StateMachineEvent.EXIT_CALLBACK);
+				var _exitCallbackEvent : StateMachineEvent = new StateMachineEvent(StateMachineEvent.EXIT_CALLBACK);
 				_exitCallbackEvent.toState = stateTo;
 				_exitCallbackEvent.fromState = _state;
-				
-				if(_states[_state].exit){
+
+				if (_states[_state].exit)
+				{
 					_exitCallbackEvent.currentState = _state;
-					_states[_state].exit.call(null,_exitCallbackEvent);
+					_states[_state].exit.call(null, _exitCallbackEvent);
 				}
 				parentState = _states[_state];
-				for(var i:int=0; i<path[0]-1; i++)
+				for (var i : int = 0; i < path[0] - 1; i++)
 				{
 					parentState = parentState.parent;
-					if(parentState.exit != null){
+					if (parentState.exit != null)
+					{
 						_exitCallbackEvent.currentState = parentState.name;
-						parentState.exit.call(null,_exitCallbackEvent);
+						parentState.exit.call(null, _exitCallbackEvent);
 					}
 				}
 			}
-			var oldState:String = _state;
+			var oldState : String = _state;
 			_state = stateTo;
-			if(path[1]>0)
+			if (path[1] > 0)
 			{
-				var _enterCallbackEvent:StateMachineEvent = new StateMachineEvent(StateMachineEvent.ENTER_CALLBACK);
+				var _enterCallbackEvent : StateMachineEvent = new StateMachineEvent(StateMachineEvent.ENTER_CALLBACK);
 				_enterCallbackEvent.toState = stateTo;
 				_enterCallbackEvent.fromState = oldState;
-				
-				if(_states[stateTo].root)
+
+				if (_states[stateTo].root)
 				{
 					parentStates = _states[stateTo].parents
-					for(var k:int = path[1]-2; k>=0; k--)
+					for (var k : int = path[1] - 2; k >= 0; k--)
 					{
-						if(parentStates[k] && parentStates[k].enter){
+						if (parentStates[k] && parentStates[k].enter)
+						{
 							_enterCallbackEvent.currentState = parentStates[k].name;
-							parentStates[k].enter.call(null,_enterCallbackEvent);
+							parentStates[k].enter.call(null, _enterCallbackEvent);
 						}
 					}
 				}
-				 if(_states[_state].enter){
+				if (_states[_state].enter)
+				{
 					_enterCallbackEvent.currentState = _state;
-					_states[_state].enter.call(null,_enterCallbackEvent);
+					_states[_state].enter.call(null, _enterCallbackEvent);
 				}
 			}
-			trace("[StateMachine]",id,"State Changed to " + _state);
-			
+			trace("[StateMachine]", id, "State Changed to " + _state);
+
 			// Transition is complete. dispatch TRANSITION_COMPLETE
 			_outEvent = new StateMachineEvent(StateMachineEvent.TRANSITION_COMPLETE);
 			_outEvent.fromState = oldState ;
