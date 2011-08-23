@@ -24,9 +24,9 @@ package stateMachine
 			this.children = [];
 		}
 
-		public function init(stateMachine : StateMachine) : void
+		public function init(stateMachineInstance : StateMachine) : void
 		{
-			if (parentName) parent = stateMachine.states[parentName] as IState;
+			if (parentName) parent = stateMachineInstance.states[parentName] as IState;
 		}
 
 		public function allowTransitionFrom(stateName : String) : Boolean
