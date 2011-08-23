@@ -1,57 +1,80 @@
 package stateMachine
 {
-	public class State
+	public class State implements IState
 	{
-		public var name:String;
-		public var from:Object;
-		public var enter:Function;
-		public var exit:Function;
-		public var _parent:State;
-		public var children:Array;
-		
-		public function State(name:String, from:Object = null, enter:Function = null, exit:Function = null, parent:State = null)
+		public var _name : String;
+		public var _from : Object;
+		public var _enter : Function;
+		public var _exit : Function;
+		public var _parent : IState;
+		public var _parentName : String;
+		public var _children : Array;
+
+		public function State(stateName : String, stateData : Object = null, parent : String = null)
 		{
-			this.name = name;
-			if (!from) from = "*";
-			this.from = from;
-			this.enter = enter;
-			this.exit = exit;
+			this._name = stateName;
+
+			if (stateData == null) stateData = {};
+
+			this._from = stateData.from;
+			if (!_from) _from = "*";
+			this._enter = stateData.enter;
+			this._exit = stateData.exit;
+			this._parentName = parent;
 			this.children = [];
-			if (parent)
-			{
-				_parent = parent;
-				_parent.children.push(this);
-			}
 		}
-		
-		public function set parent(parent:State):void
+
+		public function init(stateMachine : StateMachine) : void
+		{
+			if (parentName) parent = stateMachine.states[parentName] as IState;
+		}
+
+		public function allowTransitionFrom(stateName : String) : Boolean
+		{
+			return (_from.indexOf(stateName) != -1 || from == "*");
+		}
+
+		public function get name() : String
+		{
+			return _name;
+		}
+
+		public function get from() : Object
+		{
+			return _from;
+		}
+
+		public function get enter() : Function
+		{
+			return _enter;
+		}
+
+		public function get exit() : Function
+		{
+			return _exit;
+		}
+
+		public function get parent() : IState
+		{
+			return _parent;
+		}
+
+		public function set parent(parent : IState) : void
 		{
 			_parent = parent;
 			_parent.children.push(this);
 		}
-		
-		public function get parent():State
+
+		public function get parentName() : String
 		{
-			return _parent;
+			return _parentName;
 		}
-		
-		public function get root():State
+
+		public function get parents() : Array
 		{
-			var parentState:State = _parent;
-			if(parentState)
-			{
-				while (parentState.parent)
-				{
-					parentState = parentState.parent;
-				}
-			}
-			return parentState;
-		}
-		public function get parents():Array
-		{
-			var parentList:Array = [];
-			var parentState:State = _parent;
-			if(parentState)
+			var parentList : Array = [];
+			var parentState : IState = _parent;
+			if (parentState)
 			{
 				parentList.push(parentState);
 				while (parentState.parent)
@@ -62,7 +85,31 @@ package stateMachine
 			}
 			return parentList;
 		}
-		public function toString():String
+
+		public function get children() : Array
+		{
+			return _children;
+		}
+
+		public function set children(children : Array) : void
+		{
+			_children = children;
+		}
+
+		public function get root() : IState
+		{
+			var parentState : IState = _parent;
+			if (parentState)
+			{
+				while (parentState.parent)
+				{
+					parentState = parentState.parent;
+				}
+			}
+			return parentState;
+		}
+
+		public function toString() : String
 		{
 			return this.name;
 		}
