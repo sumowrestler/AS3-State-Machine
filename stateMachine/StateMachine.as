@@ -64,11 +64,12 @@ package stateMachine
 		 * @param stateData	A hash containing state enter and exit callbacks and allowed states to transition from
 		 * The "from" property can be a string or and array with the state names or * to allow any transition
 		 **/
-		public function addState(stateName : String, stateData : Object = null) : void
+		public function addState(newState : IState) : void
 		{
-			if (stateName in _states) trace("[StateMachine]", id, "Overriding existing state " + stateName);
-
-			_states[stateName] = new State(stateName, stateData.from, stateData.enter, stateData.exit, _states[stateData.parent])
+			if (newState.name in _states) trace("[StateMachine]", id, "Overriding existing state " + newState.name);
+			
+			_states[newState.name] = newState;
+			newState.init(this);
 		}
 
 		/**
