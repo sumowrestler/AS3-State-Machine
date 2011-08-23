@@ -10,7 +10,7 @@ package stateMachine
 		public var _parentName : String;
 		public var _children : Array;
 
-		public function State(stateName : String, stateData : Object = null, parent : String = null)
+		public function State(stateName : String, stateData : Object = null)
 		{
 			this._name = stateName;
 
@@ -20,7 +20,7 @@ package stateMachine
 			if (!_from) _from = "*";
 			this._enter = stateData.enter;
 			this._exit = stateData.exit;
-			this._parentName = parent;
+			this._parentName = stateData.parent;
 			this.children = [];
 		}
 
