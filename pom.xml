@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>cassiozen.as3</groupId>
-  <artifactId>as3-state-machin</artifactId>
+  <artifactId>as3-state-machine</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>swc</packaging>
 
