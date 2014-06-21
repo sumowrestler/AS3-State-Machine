@@ -17,6 +17,11 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>nz.co.idevelop.flex</groupId>
+    <artifactId>flex-application-parent</artifactId>
+    <version>1.0.0</version>
+  </parent>
 
   <groupId>cassiozen.as3</groupId>
   <artifactId>as3-state-machine</artifactId>
@@ -25,29 +30,26 @@
 
   <name>AS3 State Machine</name>
 
-    <properties>
-        <flexmojos.version>4.2-beta</flexmojos.version>
-        <flex.framework.version>4.6.b.23201</flex.framework.version>
-        <skipTests>true</skipTests>
-        <flex.compile.debug>false</flex.compile.debug>
-    </properties>
   <build>
     <sourceDirectory>.</sourceDirectory>
 
     <plugins>
         <plugin>
-            <groupId>org.sonatype.flexmojos</groupId>
+            <groupId>net.flexmojos.oss</groupId>
             <artifactId>flexmojos-maven-plugin</artifactId>
             <version>${flexmojos.version}</version>
             <extensions>true</extensions>
-            <configuration>
-                <debug>${flex.compile.debug}</debug>
-            </configuration>
             <dependencies>
                 <dependency>
                     <groupId>com.adobe.flex</groupId>
                     <artifactId>compiler</artifactId>
-                    <version>${flex.framework.version}</version>
+                    <version>${flex.version}</version>
+                    <type>pom</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.adobe.air</groupId>
+                    <artifactId>compiler</artifactId>
+                    <version>${air.version}</version>
                     <type>pom</type>
                 </dependency>
             </dependencies>
@@ -57,29 +59,26 @@
 
   <dependencies>
       <dependency>
-          <groupId>org.sonatype.flexmojos</groupId>
-          <artifactId>flexmojos-threadlocaltoolkit-wrapper</artifactId>
-          <version>${flexmojos.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>com.adobe.flex.framework</groupId>
-          <artifactId>flex-framework</artifactId>
-          <version>${flex.framework.version}</version>
+          <groupId>com.adobe.air.framework</groupId>
+          <artifactId>common-framework</artifactId>
           <type>pom</type>
       </dependency>
       <dependency>
-          <groupId>com.gamua</groupId>
-          <artifactId>starling-framework</artifactId>
-          <version>1.3-SNAPSHOT</version>
+          <groupId>com.adobe.flex.framework.air</groupId>
+          <artifactId>air-framework</artifactId>
+          <type>pom</type>
+      </dependency>
+      <dependency>
+          <groupId>com.adobe.flash.framework</groupId>
+          <artifactId>playerglobal</artifactId>
           <type>swc</type>
       </dependency>
-    <dependency>
-      <groupId>com.adobe.flexunit</groupId>
-      <artifactId>flexunit</artifactId>
-      <version>4.0-rc-1</version>
-      <type>swc</type>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+          <groupId>com.adobe.flexunit</groupId>
+          <artifactId>flexunit</artifactId>
+          <type>swc</type>
+          <scope>test</scope>
+      </dependency>
   </dependencies>
 
     <profiles>
